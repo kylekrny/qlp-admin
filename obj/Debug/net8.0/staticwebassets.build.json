@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "7GlqkjIxJPm5SCZHtSQh7d2JvLoY4LtXxbgNombx600=",
+  "Source": "qlp-admin",
+  "BasePath": "_content/qlp-admin",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
