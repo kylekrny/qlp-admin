@@ -32,21 +32,3 @@ app.MapPost("/logout", () => {});
 
 
 app.Run();
-
-
-// Console.WriteLine($"Database path: {db.DbPath}.");
-
-// Console.WriteLine("Inserting a new user");
-// db.Add(new User { Email = "kylekrny@gmail.com", FistName = "Kyle", LastName = "Kearney", Password = "Password"  });
-// db.SaveChanges();
-
-// Console.WriteLine("Querying for a user");
-// var user = db.Users
-//     .OrderBy(b => b.Id)
-//     .First();
-// Console.WriteLine(user);
-
-// db.Remove(user);
-// db.SaveChanges();
-
-// Console.WriteLine("User Deleted");
