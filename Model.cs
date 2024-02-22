@@ -12,6 +12,8 @@ public class DatabaseContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Customer> Customers { get; set; }
     public DbSet<Address> Addresses { get; set;}
+    public DbSet<Session> Sessions { get; set; }
+    public DbSet<LoginLog> LoginLogs { get; set; }
     public string DbPath { get; }
 
     public DatabaseContext()
@@ -21,22 +23,38 @@ public class DatabaseContext : DbContext
         DbPath = System.IO.Path.Join(path, "qlp.db");
     }
 
-    // protected override void OnModelCreating(ModelBuilder modelBuilder)
-    // {
-    //     base.OnModelCreating(modelBuilder);
-    //     modelBuilder.Entity;
-    // }
     // The following configures EF to create a Sqlite database file in the
     // special "local" folder for your platform.
     protected override void OnConfiguring(DbContextOptionsBuilder options)
         => options.UseSqlite($"Data Source={DbPath}");
+        
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // Configure relationships between entities
+        modelBuilder.Entity<Session>()
+            .HasOne(s => s.User)
+            .WithMany(u => u.Sessions)
+            .HasForeignKey(s => s.UserId);
+
+        modelBuilder.Entity<LoginLog>()
+            .HasOne(ll => ll.User)
+            .WithMany(u => u.LoginLogs)
+            .HasForeignKey(ll => ll.UserId);
+        
+        modelBuilder.Entity<Order>()
+            .HasOne(o => o.Customer)
+            .WithMany(c => c.Orders)
+            .HasForeignKey(o => o.CustomerId);
+    }
 }
 
 public class Order
 {
-    public int Id { get; set; }
+    [Key]
+    public int OrderId { get; set; }
     public int Price { get; set; }
     public Payment? Payment { get; set; }
+    public int CustomerId { get; set; }
     public Customer Customer { get; set; } = null!;
     public DateTime OrderDate { get; set; }
     public Address? ShippingAddress { get; set; }
@@ -45,7 +63,8 @@ public class Order
 }
 
 public class Address {
-    public int Id { get; set; }
+    [Key]
+    public int AddressId { get; set; }
     public string AddressLine1 { get; set; } = null!;
     public string AddressLine2 { get; set; } = null!;
     public string City { get; set; } = null!;
@@ -59,7 +78,8 @@ public class Address {
 }
 
 public class Payment {
-    public int Id { get; set; }
+    [Key]
+    public int PaymentId { get; set; }
     public int CreditCard { get; set; }
     public int SecurityCode { get; set; }
     public int ExpirationDate { get; set; }
@@ -71,15 +91,23 @@ public class Payment {
 }
 
 public class User {
-   public int Id { get; set; }
+   [Key]
+   public int UserId { get; set; }
+   [Required]
+   [MaxLength(100)]
    public string Email { get; set; } = null!;
+   [Required]
+   [MaxLength(255)]
    public string Password { get; set; } = null!;
    public string FistName { get; set; } = null!;
    public string LastName { get; set; } = null!;
+   public ICollection<Session> Sessions { get; set; } = null!;
+   public ICollection<LoginLog> LoginLogs { get; set; } = null!;
 }
 
 public class Customer {
-  public int Id { get; set; }
+  [Key]
+  public int CustomerId { get; set; }
   public string FistName { get; set; } = null!;
   public string LastName { get; set; } = null!;
   public string CompanyName { get; set; } = null!;
@@ -88,6 +116,36 @@ public class Customer {
   public int PhoneNumber {get; set; }
   public string CustomerNotes { get; set; } = null!;
   public bool EmailNotifications { get; set; }
+}
 
 
+public class Session
+{
+    [Key]
+    public int SessionId { get; set; }
+
+    public int UserId { get; set; }
+    
+    public string Token { get; set; } = null!;
+    
+    public DateTime LoginTime { get; set; }
+    
+    public DateTime LastActivityTime { get; set; }
+
+    public User User { get; set; } = null!;
+}
+
+public class LoginLog
+{
+    [Key]
+    public int LogId { get; set; }
+
+    public int UserId { get; set; }
+    
+    public string Action { get; set; } = null!;
+    
+    public DateTime LogTime { get; set; }
+
+    // Navigation property for user
+    public User User { get; set; } = null!; 
 }
